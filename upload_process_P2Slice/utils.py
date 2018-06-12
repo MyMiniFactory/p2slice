@@ -95,18 +95,23 @@ def print_message_time(message, start_time):
     print('{} took {:.2f} s'.format(message, time.time() - start_time))
 
 def obj_to_stl(obj_path, stl_path, meshlab_command):
-    command = "{} -i {} -o {} >/dev/null 2>&1".format(
-	meshlab_command,
-        obj_path,
-        stl_path
-    )
-    os.system(command)
+    #  command = "{} -i {} -o {} >/dev/null 2>&1".format(
+	#  meshlab_command,
+        #  obj_path,
+        #  stl_path
+    #  )
+    #  os.system(command)
+
+    m = trimesh.load_mesh(obj_path)
+    m.export(stl_path)
     if not os.path.exists(stl_path):
         raise ValueError("meshlabserver error")
 
 def stl_to_obj(stl_path, obj_path, meshlab_command, meshlab_script_path):
     #  os.system("{} -i {} -o {} -s {} >/dev/null 2>&1".format(MESHLABSERVER_COMMAND, stl_path, obj_path, meshlab_script_path))
-    os.system("{} -i {} -o {} -s {}".format(meshlab_command, stl_path, obj_path, meshlab_script_path))
+    #  os.system("{} -i {} -o {} -s {}".format(meshlab_command, stl_path, obj_path, meshlab_script_path))
+    m = trimesh.load_mesh(stl_path)
+    m.export(obj_path)
     if not os.path.exists(obj_path):
         raise ValueError("meshlab stl to obj creation error")
 
