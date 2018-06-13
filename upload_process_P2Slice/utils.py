@@ -209,13 +209,18 @@ class ProcessBase:
         message = {"success":success, "name":self.name, "data":data}
         #  self.logger.info(message)
         with open(ProcessBase.process_report_file_path, "r+") as f:
-            report = json.load(f)
+            try:
+                report = json.load(f)
+                # change the key to int for sort keys later on
+                report = {int(k):v for k,v in report.items()}
+            except ValueError:
+                report = {}
 
         next_key = len(report.keys()) + 1
         report[next_key] = message
 
         with open(ProcessBase.process_report_file_path, 'w+') as json_file:
-            json.dump(report, json_file)
+            json.dump(report, json_file, sort_keys=True)
 
     def add_data(self, key, value):
         if key not in self.data:
