@@ -32,6 +32,8 @@ def simplify(mesh_path, mesh_name, verbose, simplify_path, TMP_PATH,
 
     from utils import stl_to_obj, obj_to_stl
 
+    original_size = os.path.getsize(mesh_path)
+
     my_mesh = mesh.Mesh.from_file(mesh_path)
     nbr_triangles = len(my_mesh)
     factor = MIN_FILE_SIZE / nbr_triangles
@@ -65,6 +67,10 @@ def simplify(mesh_path, mesh_name, verbose, simplify_path, TMP_PATH,
         except Exception as inst :
             logging.error(str(inst))
             raise_simplify_error()
+
+        new_size = os.path.getsize(mesh_path)
+
+        assert new_size != original_size
 
 
         logging.debug('Removing useless files ...')
