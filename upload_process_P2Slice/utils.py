@@ -125,7 +125,7 @@ def save_trimesh_as_obj(mesh, obj_path):
 LOG_FORMAT = '%(asctime)s %(name)s %(levelname)-7s %(message)s'
 
 def empty_file(filepath):
-    with open(filepath, "w") as json_file:
+    with open(filepath, "w+") as json_file:
         json.dump({}, json_file)
 
 def append_data_to_json(data, path_to_json):
@@ -133,12 +133,12 @@ def append_data_to_json(data, path_to_json):
         we want append data in to this dictionary
     """
 
-    with open(path_to_json, 'r') as json_file:
+    with open(path_to_json, 'r+') as json_file:
         d = json.load(json_file)
 
     d.update(data)
 
-    with open(path_to_json, 'w') as json_file:
+    with open(path_to_json, 'w+') as json_file:
         json.dump(d, json_file)
 
 module_logger = logging.getLogger("Process")
@@ -208,13 +208,13 @@ class ProcessBase:
     def _process_report(self, success, data):
         message = {"success":success, "name":self.name, "data":data}
         #  self.logger.info(message)
-        with open(ProcessBase.process_report_file_path, "r") as f:
+        with open(ProcessBase.process_report_file_path, "r+") as f:
             report = json.load(f)
 
         next_key = len(report.keys()) + 1
         report[next_key] = message
 
-        with open(ProcessBase.process_report_file_path, 'w') as json_file:
+        with open(ProcessBase.process_report_file_path, 'w+') as json_file:
             json.dump(report, json_file)
 
     def add_data(self, key, value):

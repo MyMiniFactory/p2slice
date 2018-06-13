@@ -3,3 +3,5 @@ __pycache__/
 p2slice_test/
 *.json
 *.stl
+process_report.json
+error.log
