@@ -1,6 +1,5 @@
 __pycache__/
 *.py[cod]
-simplify
 p2slice_test/
 *.json
 *.stl
