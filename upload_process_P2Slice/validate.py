@@ -31,6 +31,8 @@ def validate(json_path):
     ]
     #  print(report)
 
+    print("good")
+
 
 if __name__ == "__main__":
     import sys

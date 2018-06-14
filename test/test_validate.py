@@ -1,6 +1,6 @@
 import unittest
 import tempfile
-from validate import *
+from upload_process_P2Slice.validate import *
 
 class TestValidate(unittest.TestCase):
 
@@ -21,7 +21,7 @@ class TestValidate(unittest.TestCase):
             self.assertFalse(exists_not_empty(temp.name))
 
         with tempfile.NamedTemporaryFile() as temp:
-            temp.write("tigertigertiger")
+            temp.write(b"tigertigertiger")
             temp.flush()
             self.assertTrue(exists_not_empty(temp.name))
 
