@@ -552,9 +552,18 @@ class Tweak:
         numberOverhangs = len(overhangs)
         indexOverhangs = np.array(list(compress(range(len(L)), L)))
         volumeSupport = 0
+
+        xmins = np.min(meshC[:,4,:], axis=1)
+        xmaxs = np.max(meshC[:,4,:], axis=1)
+        ymins = np.min(meshC[:,5,:], axis=1)
+        ymaxs = np.max(meshC[:,5,:], axis=1)
+
         for i, overhang in enumerate(overhangs):
             indexOverhang = indexOverhangs[i]
             center = np.array(overhang[4:7,:]).sum(axis=1)/3
+
+            """
+            start_0 = time()
             candidateMesh = meshC[:indexOverhang]
             L1 = np.sign(candidateMesh[:,4,0]-center[0])!=np.sign(candidateMesh[:,4,1]-center[0])
             L2 = np.sign(candidateMesh[:,4,0]-center[0])!=np.sign(candidateMesh[:,4,2]-center[0])
@@ -565,6 +574,32 @@ class Tweak:
             L3 = np.sign(candidateMesh[:,5,1]-center[1])!=np.sign(candidateMesh[:,5,2]-center[1])
             M = L1+L2+L3
             candidateMesh = list(candidateMesh[L*M])
+
+            end_0 = time()
+            """
+
+            #  print("bool", end_0 - start_0)
+            #  print("old num", len(candidateMesh))
+            #  print(candidateMesh)
+
+            #  start_new_bool = time()
+            bool_x = np.logical_and(
+                xmins[:indexOverhang] < center[0], xmaxs[:indexOverhang] > center[0]
+            )
+            bool_y = np.logical_and(
+                ymins[:indexOverhang] < center[1], ymaxs[:indexOverhang] > center[1]
+            )
+            bool_xyz = np.logical_and(bool_x, bool_y)
+            #  end_new_bool = time()
+            candidateMesh = meshC[:indexOverhang][bool_xyz].tolist()
+
+            #  print("new_bool", end_new_bool - start_new_bool)
+
+            #  print("new", bool_xyz)
+            #  print("new num", np.sum(bool_xyz))
+            #  print(meshC[:indexOverhang][bool_xyz])
+
+            #  start_1 = time()
             height = -1
             while len(candidateMesh) > 0 and height < 0:
                 closerTriangle = np.array(candidateMesh[-1])
@@ -573,6 +608,11 @@ class Tweak:
                 if t>0 :
                     height = t
                 candidateMesh.pop()
+
+            #  end_1 = time()
+
+            #  print("time intersect", end_1 - start_1)
+
             if len(candidateMesh)==0 :
                 height = center[2] - zmin
 
