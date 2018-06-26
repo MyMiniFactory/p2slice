@@ -12,7 +12,6 @@ import numpy as np
 import json
 import logging
 #import time
-from itertools import compress
 
 from slicing_config import TWEAKER_OVERHANG_ANGLE_DEGREE
 
@@ -505,31 +504,46 @@ class Tweak:
         sleep(0)  # Yield, so other threads get a bit of breathing space.
         return bottom, overhang
 
+    @profile
     def computeSupportVolume(self, mesh, orientation):
         
-        def rayIntersectsTriangle(rayOrigin, rayVector, triangle):
+        EPSILON = 0.000000000000001
+
+        #def rayIntersectsTriangle(rayOrigin, rayVector, triangle):
+        @profile
+        def rayIntersectsTriangle(rayOrigin, triangle):
+
             #rayOrigin : 3d numpy array
             #rayVector : 3d numpy array, normed
             #triangle = array of 3 vertex, where vertex are 3d numpy array
             #we return t, the distance between the point and the triangle
             #if there is no intersection, we return -1 
-            EPSILON = 0.000000000000001
-            vertex0 = np.array(triangle[0])
-            vertex1 = np.array(triangle[1])
-            vertex2 = np.array(triangle[2])
-            edge1 = vertex1-vertex0
-            edge2 = vertex2-vertex0
-            h = np.cross(rayVector, edge2)
+            #the rayVector is always [0,0,-1]
+            #vertex0 = np.array(triangle[0])
+            #vertex1 = np.array(triangle[1])
+            #vertex2 = np.array(triangle[2])
+            edge1 = triangle[1]-triangle[0]
+            edge2 = triangle[2]-triangle[0]
+            #h = np.cross(rayVector, edge2)
+            hx = edge2[1]
+            hy = -edge2[0]
+            hz = 0
+            h = np.array([hx, hy, hz])
             a = np.inner(edge1, h)
             if a>-EPSILON and a<EPSILON:
                 return -1
             f = 1/a
-            s = rayOrigin - vertex0
+            s = rayOrigin - triangle[0]
             u = f * np.inner(s, h)
             if u<0 or u>1:
                 return -1
-            q = np.cross(s, edge1)
-            v = f * np.inner(rayVector, q)
+            #q = np.cross(s, edge1)
+            qx = s[1]*edge1[2] - s[2]*edge1[1]  
+            qy = s[2]*edge1[0] - s[0]*edge1[2]
+            qz = s[0]*edge1[1] - s[1]*edge1[0]
+            q = np.array([qx, qy, qz])
+            #v = f * np.inner(rayVector, q)
+            v = f * (-qz)
             if v<0 or u+v>1:
                 return -1
             #We compute t
@@ -550,7 +564,7 @@ class Tweak:
         L = L1*L2
         overhangs = meshC[L]
         numberOverhangs = len(overhangs)
-        indexOverhangs = np.array(list(compress(range(len(L)), L)))
+        indexOverhangs = np.compress(L, range(len(L)))
         volumeSupport = 0
 
         xmins = np.min(meshC[:,4,:], axis=1)
@@ -591,7 +605,8 @@ class Tweak:
             )
             bool_xyz = np.logical_and(bool_x, bool_y)
             #  end_new_bool = time()
-            candidateMesh = meshC[:indexOverhang][bool_xyz].tolist()
+            candidateMesh = meshC[:indexOverhang][bool_xyz]
+            #candidateMesh = np.compress(list(bool_xyz), candidateMesh, axis=0)
 
             #  print("new_bool", end_new_bool - start_new_bool)
 
@@ -601,20 +616,33 @@ class Tweak:
 
             #  start_1 = time()
             height = -1
+            for closerTriangle in reversed(candidateMesh):
+                closerTriangle = [closerTriangle[4:7,0], closerTriangle[4:7,1], closerTriangle[4:7,2]]
+                t = rayIntersectsTriangle(center, np.array(closerTriangle))
+                if t>0 :
+                    height = t
+                    break
+
+            if height==-1 :
+                height = center[2] - zmin
+
+            """
             while len(candidateMesh) > 0 and height < 0:
                 closerTriangle = np.array(candidateMesh[-1])
                 closerTriangle = [closerTriangle[4:7,0], closerTriangle[4:7,1], closerTriangle[4:7,2]]
-                t = rayIntersectsTriangle(center, np.array([0,0,-1]), closerTriangle)
+                t = rayIntersectsTriangle(center, np.array(closerTriangle))
                 if t>0 :
                     height = t
                 candidateMesh.pop()
+
+            if len(candidateMesh)==0 :
+                height = center[2] - zmin
+            """
 
             #  end_1 = time()
 
             #  print("time intersect", end_1 - start_1)
 
-            if len(candidateMesh)==0 :
-                height = center[2] - zmin
 
             vS = height * overhang[7, 0] 
             volumeSupport += vS
