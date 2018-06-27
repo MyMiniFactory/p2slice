@@ -33,6 +33,7 @@ ADD ./docker/requirements.txt /app
 ADD ./upload_process_P2Slice /app
 
 
+RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install --trusted-host pypi.python.org -r requirements.txt
 
 ENTRYPOINT ["python3", "upload_process_P2Slice.py"]
