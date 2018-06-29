@@ -6,6 +6,6 @@ then
     exit 1;
 fi
 
-export PYTHONPATH=$PYTHONPATH:${PWD}upload_process_dir
+export PYTHONPATH=$PYTHONPATH:${PWD}/$upload_process_dir
 
-python3 -m unittest test.test_MeshTweaker -v
+python3 -m unittest discover -v
