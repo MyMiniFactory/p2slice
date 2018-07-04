@@ -33,7 +33,7 @@ class ProcessTightlyArranged(ProcessBase):
             # counter example https://www.myminifactory.com/object/1338
             # similar https://www.myminifactory.com/object/1405 object with support
             # hack since I know we fix the first mesh in the meshes so let the
-            # splited mesh in meshes with smallest zmax to be on the first object
+            # splited mesh in meshes with biggest zmax to be on the first object
             split_t_meshes = transformed_mesh.split(only_watertight=False)
             sorted_meshes = sorted(split_t_meshes, key=lambda x:x.vertices[:,2].min())
 
