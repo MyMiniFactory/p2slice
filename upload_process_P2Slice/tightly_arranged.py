@@ -35,7 +35,7 @@ class ProcessTightlyArranged(ProcessBase):
             # hack since I know we fix the first mesh in the meshes so let the
             # splited mesh in meshes with smallest zmax to be on the first object
             split_t_meshes = transformed_mesh.split(only_watertight=False)
-            sorted_meshes = sorted(split_t_meshes, key=lambda x:x.vertices[:,2].max())
+            sorted_meshes = sorted(split_t_meshes, key=lambda x:x.vertices[:,2].min())
 
             res = self.bullet_tightly_arranged_test(mesh_path, sorted_meshes, tmp_path, P2Slice_path) # make it self contained?
             if res is not None:
