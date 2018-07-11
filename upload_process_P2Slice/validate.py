@@ -15,13 +15,15 @@ def validate(json_path):
     # Test all success is true
     assert all_success(report)
 
+    # TODO: the following code runs only if return paths is empty
     # all paths exists and not empty
     for process in report.values():
         if process["data"]:
             for k, v in process["data"].items():
-                if "path" in k:
+                if k == "paths":
                     for path in v:
-                        assert exists_not_empty(path)
+                        assert exists_not_empty(path), "{} doesn't exists".format(path)
+
 
 
 

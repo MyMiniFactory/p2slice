@@ -47,6 +47,8 @@ class ProcessTightlyArranged(ProcessBase):
 
     def is_well_arranged(self, mesh, meshes):
 
+        return True, mesh # tiger's Test maybe this is not good
+
         # number based on 12 cm machine where 0.01*12 = 0.01 which is like one layer height
         # assuming your scale the object for small printer (like STARTT)
         ACCEPTED_BASE_PERCENTAGE = 0.01
@@ -165,7 +167,10 @@ class ProcessTightlyArranged(ProcessBase):
             tmp_objnames.append(tmp_objname)
             stlnames.append(stlname)
 
-        command = "/home/mmf159/Documents/bullet_learning/hello {}".format(" ".join(tmp_objnames))
+        command = "{} {} &> /dev/null".format(
+            os.path.join(P2Slice_path, "bullet"),
+            " ".join(tmp_objnames)
+            )
         self.logger.debug(command)
         command_out = os.system(command)
 
