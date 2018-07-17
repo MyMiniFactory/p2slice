@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import trimesh
+import time
 from utils import (
     LOG_FORMAT,
     ProcessBase,
@@ -172,8 +173,11 @@ class ProcessTightlyArranged(ProcessBase):
             " ".join(tmp_objnames)
             )
         self.logger.debug(command)
+        start = time.time()
         command_out = os.system(command)
-
+        end = time.time()
+        #print("OUTPUT : ", command_out)
+        #print("TEMPS POUR LA COMMANDE : ", end-start)
         for tmp_obj in tmp_objnames:
             os.remove(tmp_obj)
 
