@@ -11,6 +11,8 @@ from collections import Counter
 import numpy as np
 import json
 import logging
+from stl import mesh as meshSTL
+import os
 #import time
 
 from slicing_config import TWEAKER_OVERHANG_ANGLE_DEGREE
@@ -89,7 +91,7 @@ class Tweak:
             mesh = self.project_verteces(mesh, orientation)
             bottom, overhang = self.lithograph(mesh, orientation)
             Unprintability = self.target_function(bottom, overhang)
-            print("Unpr. : ",Unprintability, " Overhang : ", overhang, "Bottom : ", bottom, "Orientation : ", orientation.tolist())
+            #print("Unpr. : ",Unprintability, " Overhang : ", overhang, "Bottom : ", bottom, "Orientation : ", orientation.tolist())
             results = np.vstack((results, [orientation, bottom,
                             overhang, Unprintability]))
             logging.debug("  %-26s %-10s%-10s%-10s "
@@ -115,21 +117,23 @@ class Tweak:
         #Checking if there are two or more close unprintability
         close_unprintability_orientations = []
         for alignment in results:
-            if (alignment[3]-best_alignment[3])/best_alignment[3] < 1:
+            if (alignment[3]-best_alignment[3])/max(best_alignment[3], 0.00000001) < 1:
                 close_unprintability_orientations.append(alignment)
         if len(close_unprintability_orientations) > 1:
-            print("Computing the volumes")
-            vol = self.computeSupportVolume(mesh, best_alignment[0])
-            unprMin = self.target_function(best_alignment[1], vol)
+            #print("Computing the volumes")
+            unprMin = np.inf
             for alignment in close_unprintability_orientations:
+                mesh = self.project_verteces(mesh, alignment[0])
                 vol = self.computeSupportVolume(mesh, alignment[0])
                 unpr = self.target_function(alignment[1], vol)
-                print("Unpr. : ", unpr, "Volume : ", vol, "Bottom : ", alignment[1], "Orientation : ", alignment[0].tolist())
+                #print("Unpr. : ", unpr, "Volume : ", vol, "Bottom : ", alignment[1], "Orientation : ", alignment[0].tolist())
                 if unpr < unprMin:
                     unprMin = unpr
                     best_alignment = alignment
 
         if len(best_alignment) > 0:
+            mesh = self.project_verteces(mesh, best_alignment[0])
+            self.generateOverhangs(mesh, best_alignment[0])
             [v, phi, Matrix] = self.euler(best_alignment)
             self.Euler = [[v[0],v[1],v[2]], phi]
             self.Matrix = Matrix
@@ -167,7 +171,7 @@ class Tweak:
         if bottom == 0:
             Unprintability = np.inf
         else:
-            Unprintability =  overhang * 0.01 / bottom
+            Unprintability =  max(0.01,overhang) * 0.1 /min(5, bottom)
 
         return np.around(Unprintability, 6)
 
@@ -236,6 +240,7 @@ class Tweak:
 
         if not self.extended_mode: # TODO remove facets smaller than a
                                 #relative proportion of the total dimension
+            #print("---------FILTERING")
             filtered_mesh = mesh[mesh[:,7,0] > NEGL_FACE_SIZE]
             if len(filtered_mesh) > 100:
                 mesh = filtered_mesh
@@ -492,9 +497,18 @@ class Tweak:
         """
         
         # filter overhangs
-        overhangs = mesh[np.inner(mesh[:,0,:], orientation) < ascent]
-        overhangs = overhangs[overhangs[:,7,1] > (zmin + first_lay_h)]
+        L1 = np.inner(mesh[:,0,:], orientation) < ascent
+        L2 = mesh[:,7,1] > (zmin + third_lay_h)
+        L = L1*L2
+        overhangs = mesh[L]
         
+        """
+        #new formula
+        avg_area = total_area / len(mesh)
+        overhang = 0
+        for face in overhangs:
+            overhang += (avg_area/face[7,0] + (face[7,0]/avg_area)**2)
+        """
         #compute overhang with surface
         if len(overhangs) > 0:
             overhang = np.sum(overhangs[:, 7, 0])
@@ -504,13 +518,13 @@ class Tweak:
         sleep(0)  # Yield, so other threads get a bit of breathing space.
         return bottom, overhang
 
-    @profile
+
+
     def computeSupportVolume(self, mesh, orientation):
         
-        EPSILON = 0.000000000000001
+        EPSILON = 0.00000000000001
 
         #def rayIntersectsTriangle(rayOrigin, rayVector, triangle):
-        @profile
         def rayIntersectsTriangle(rayOrigin, triangle):
 
             #rayOrigin : 3d numpy array
@@ -557,13 +571,17 @@ class Tweak:
 
         #compute overhang with volume
         ascent = np.cos((180 - (90 - (TWEAKER_OVERHANG_ANGLE_DEGREE - 0.1)))*np.pi/180)
+        zmax = np.amax(mesh[:,7,2]) # z median
         zmin = np.amin(mesh[:,6,:])
+        height = np.abs(zmax - zmin)
+        third_lay_h = height/50
         meshC = mesh[np.argsort(mesh[:,7,2])]
         L1 = np.inner(meshC[:,0,:], orientation) < ascent
-        L2 = meshC[:,7,1] > (zmin + first_lay_h)
+        L2 = meshC[:,7,1] > (zmin + third_lay_h)
         L = L1*L2
         overhangs = meshC[L]
         numberOverhangs = len(overhangs)
+        #print("NUMBER OF OVERHANGS : ", numberOverhangs, " / ", len(mesh))
         indexOverhangs = np.compress(L, range(len(L)))
         volumeSupport = 0
 
@@ -572,6 +590,7 @@ class Tweak:
         ymins = np.min(meshC[:,5,:], axis=1)
         ymaxs = np.max(meshC[:,5,:], axis=1)
 
+        heights = []
         for i, overhang in enumerate(overhangs):
             indexOverhang = indexOverhangs[i]
             center = np.array(overhang[4:7,:]).sum(axis=1)/3
@@ -606,6 +625,7 @@ class Tweak:
             bool_xyz = np.logical_and(bool_x, bool_y)
             #  end_new_bool = time()
             candidateMesh = meshC[:indexOverhang][bool_xyz]
+            candidateMesh = candidateMesh[np.inner(candidateMesh[:,0,:], orientation) > 0]
             #candidateMesh = np.compress(list(bool_xyz), candidateMesh, axis=0)
 
             #  print("new_bool", end_new_bool - start_new_bool)
@@ -626,6 +646,7 @@ class Tweak:
             if height==-1 :
                 height = center[2] - zmin
 
+            heights.append(height)
             """
             while len(candidateMesh) > 0 and height < 0:
                 closerTriangle = np.array(candidateMesh[-1])
@@ -646,6 +667,9 @@ class Tweak:
 
             vS = height * overhang[7, 0] 
             volumeSupport += vS
+        heights = np.sort(heights)
+        #print(" HAUTEUR MAX : ", np.amax(mesh[:,6,:]) - zmin)
+        #print ("HEIGHTS : ", heights)
         sleep(0)  # Yield, so other threads get a bit of breathing space.
         return volumeSupport
 

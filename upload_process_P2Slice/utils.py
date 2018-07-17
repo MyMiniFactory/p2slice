@@ -13,7 +13,7 @@ import trimesh
 from rectangle_creation import best_rectangle
 import generate_support_material
 from stl import mesh
-from MeshTweaker import Tweak
+from MeshTweakerNew import Tweak
 from Simplify import simplify
 import STLReader
 

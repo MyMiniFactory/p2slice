@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import trimesh
+import time
 from utils import (
     LOG_FORMAT,
     ProcessBase,
@@ -35,7 +36,7 @@ class ProcessTightlyArranged(ProcessBase):
             # hack since I know we fix the first mesh in the meshes so let the
             # splited mesh in meshes with smallest zmax to be on the first object
             split_t_meshes = transformed_mesh.split(only_watertight=False)
-            sorted_meshes = sorted(split_t_meshes, key=lambda x:x.vertices[:,2].max())
+            sorted_meshes = sorted(split_t_meshes, key=lambda x:x.vertices[:,2].min())
 
             res = self.bullet_tightly_arranged_test(mesh_path, sorted_meshes, tmp_path, P2Slice_path) # make it self contained?
             if res is not None:
@@ -165,10 +166,13 @@ class ProcessTightlyArranged(ProcessBase):
             tmp_objnames.append(tmp_objname)
             stlnames.append(stlname)
 
-        command = "/home/mmf159/Documents/bullet_learning/hello {}".format(" ".join(tmp_objnames))
+        command = "/home/flav/Documents/Bullet/hello_test {}".format(" ".join(tmp_objnames))
         self.logger.debug(command)
+        start = time.time()
         command_out = os.system(command)
-
+        end = time.time()
+        #print("OUTPUT : ", command_out)
+        #print("TEMPS POUR LA COMMANDE : ", end-start)
         for tmp_obj in tmp_objnames:
             os.remove(tmp_obj)
 
