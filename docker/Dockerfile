@@ -54,4 +54,6 @@ ADD ./upload_process_P2Slice /app
 
 RUN gcc -I/usr/local/bullet/src -I/usr/local/bullet/examples/ -I/usr/local/java/include -I/usr/local/java/include/genunix /app/bullet.cpp -o /app/bullet -L /usr/local/bullet2.87/src/BulletDynamics/ -l BulletDynamics  -L /usr/local/bullet/src/BulletCollision/ -l BulletCollision -L /usr/local/bullet/src -l LinearMath -l stdc++ -lm
 
+ENV PATH="/app:${PATH}"
+
 ENTRYPOINT ["python3", "upload_process_P2Slice.py"]

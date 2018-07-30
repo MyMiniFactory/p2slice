@@ -70,10 +70,9 @@ class ProcessTightlyArranged(ProcessBase):
             tmp_objnames.append(tmp_objname)
             stlnames.append(stlname)
 
-        command = "{} {} &> /dev/null".format(
-            os.path.join(P2Slice_path, "bullet"),
-            " ".join(tmp_objnames)
-            )
+        # bullet exec should exposed in dockerfile
+        command = "bullet {} &> /dev/null".format(" ".join(tmp_objnames))
+
         self.logger.debug(command)
         start = time.time()
         command_out = os.system(command)
