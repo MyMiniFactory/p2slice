@@ -47,14 +47,12 @@ class ProcessWellArranged(ProcessBase):
                 well_arranged, transformed_mesh = self.is_well_arranged(my_mesh, meshes, ori)
                 if well_arranged:
                     self.logger.debug("Is well arranged")
-                    ### WARNING : WE CHANGE MY_MESH ###
                     transformed_mesh.export(mesh_path)
                     return True
         
         self.logger.debug("Is not well aranged")
         return False
 
-    #TODO
     @staticmethod
     def applyTransform(mesh, n):
         #n is the orientation vector
