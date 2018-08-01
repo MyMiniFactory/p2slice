@@ -7,14 +7,15 @@ from collections import Counter
 from utils import (
     LOG_FORMAT,
     ProcessBase,
-    trimesh_load_clean
+    trimesh_load_clean,
+    append_data_to_json
 )
 
 class ProcessWellArranged(ProcessBase):
     def __init__(self):
         super().__init__("WellArranged")
 
-    def perform(self, mesh_path):
+    def perform(self, mesh_path, P2Slice_json):
         super().perform()
 
         def calculateArea(m, index):
@@ -48,9 +49,13 @@ class ProcessWellArranged(ProcessBase):
                 if well_arranged:
                     self.logger.debug("Is well arranged")
                     transformed_mesh.export(mesh_path)
+                    data = {'printInPlace': True}
+                    append_data_to_json(data, P2Slice_json)
                     return True
         
         self.logger.debug("Is not well aranged")
+        data = {'printInPlace': False}
+        append_data_to_json(data, P2Slice_json)
         return False
 
     @staticmethod
