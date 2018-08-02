@@ -15,7 +15,7 @@ class ProcessWellArranged(ProcessBase):
     def __init__(self):
         super().__init__("WellArranged")
 
-    def perform(self, mesh_path, P2Slice_json):
+    def perform(self, mesh_path, P2Slice_json, P2Slice_metadata_json):
         super().perform()
 
         def calculateArea(m, index):
@@ -51,6 +51,12 @@ class ProcessWellArranged(ProcessBase):
                     transformed_mesh.export(mesh_path)
                     data = {'printInPlace': True}
                     append_data_to_json(data, P2Slice_json)
+                    matrix = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]] 
+                    metadata = {
+                        'rotation_matrix': matrix,
+                        'alignment': [0.0, 0.0, 1.0]
+                    }
+                    append_data_to_json(metadata, P2Slice_metadata_json)
                     return True
         
         self.logger.debug("Is not well aranged")

@@ -57,7 +57,7 @@ class ProcessP2Slice(ProcessBase):
             union(result_mesh_path, P2Slice_metadata_json)
             shell_count(result_mesh_path, P2Slice_json, P2Slice_metadata_json)
             simplify(result_mesh_path, mesh_name, verbose, P2Slice_path, tmp_path, meshlab_command)
-            is_well_arranged = well_arranged(result_mesh_path, P2Slice_json)
+            is_well_arranged = well_arranged(result_mesh_path, P2Slice_json, P2Slice_metadata_json)
 
             if not is_well_arranged:
                 tweak(result_mesh_path, support_free, P2Slice_json, P2Slice_metadata_json)
