@@ -26,43 +26,42 @@ class ProcessWellArranged(ProcessBase):
             n = np.cross(v1, v2)
             return np.linalg.norm(n)/2
             
-
         my_mesh = trimesh_load_clean(mesh_path)
         meshes = my_mesh.split(only_watertight=False)
         number_of_meshes = len(meshes)
 
-        if number_of_meshes <= 1:
-            return False
-
-        orient = Counter()
-        align = my_mesh.face_normals
-        for index in range(len(align)):       # Cumulate areavectors
-            orient[tuple(align[index])] += calculateArea(my_mesh, index)
-        orientations = orient.most_common(100)
+        well_arranged = 0
         
-        for m in meshes:
-            for ori in orientations:
-                ori = np.array(ori[0])
-                print(ori)
-                ori = ori / np.linalg.norm(ori)
-                well_arranged, transformed_mesh = self.is_well_arranged(my_mesh, meshes, ori)
+        if number_of_meshes > 1:
+            orient = Counter()
+            align = my_mesh.face_normals
+            for index in range(len(align)):       # Cumulate areavectors
+                orient[tuple(align[index])] += calculateArea(my_mesh, index)
+            orientations = orient.most_common(100)
+            
+            for m in meshes:
+                for ori in orientations:
+                    ori = np.array(ori[0])
+                    print(ori)
+                    ori = ori / np.linalg.norm(ori)
+                    well_arranged, transformed_mesh = self.is_well_arranged(my_mesh, meshes, ori)
+                    if well_arranged:
+                        self.logger.debug("Is well arranged")
+                        transformed_mesh.export(mesh_path)
+                        matrix = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]] 
+                        metadata = {
+                            'rotation_matrix': matrix,
+                            'alignment': [0.0, 0.0, 1.0]
+                        }
+                        append_data_to_json(metadata, P2Slice_metadata_json)
+                        break
                 if well_arranged:
-                    self.logger.debug("Is well arranged")
-                    transformed_mesh.export(mesh_path)
-                    data = {'printInPlace': True}
-                    append_data_to_json(data, P2Slice_json)
-                    matrix = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]] 
-                    metadata = {
-                        'rotation_matrix': matrix,
-                        'alignment': [0.0, 0.0, 1.0]
-                    }
-                    append_data_to_json(metadata, P2Slice_metadata_json)
-                    return True
+                    break
         
-        self.logger.debug("Is not well aranged")
-        data = {'printInPlace': False}
+        self.logger.debug("Well aranged : {}".format(well_arranged))
+        data = {'printInPlace': well_arranged}
         append_data_to_json(data, P2Slice_json)
-        return False
+        return well_arranged
 
     @staticmethod
     def applyTransform(mesh, n):
@@ -184,6 +183,6 @@ class ProcessWellArranged(ProcessBase):
                 #  raise NotImplementedError
                 pass
 
-            return True, transformed_mesh
+            return 1, transformed_mesh
         else:
-            return False, None
+            return 0, None
