@@ -59,18 +59,22 @@ Get data from stls for MMF ThreedFile table
 Split a STL file to several stls by looking at bounding box (axis-align) of the
 connected components
 
+[Example](./p2slice_test/split-test.stl)
+
 ### tightly_arranged (ProcessTightlyArranged)
 
 Use Bullet Physics Simulation Engine to test
 whether a file is tightly_arranged i.e. multiple models are put in a STL file
 and arrange very tightly such that the bounding box (axis-align) are intersecting.
 
-[Example](https://cdn.myminifactory.com/assets/object-assets/5857b67bbce8f/threedfiles/black-bear-all-black.stl)
+[Example](./p2slice_test/tightly-arranged.stl)
 
 ### union (ProcessUnion)
 
 Use Blender apply CSG Operation union to a STL to try to merge several shell to
 single shell
+
+[Example](./p2slice_test/union-test.stl)
 
 ### shell_count (ProcessShellCount)
 
