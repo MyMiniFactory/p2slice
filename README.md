@@ -52,7 +52,7 @@ STLReader.py is adapted from STLReader.py in CuraEngine
 
 ### parse_data (ProcessParseData)
 
-Get data from stls for MMF ThreedFile table
+Get mesh information from original stls
 
 ### split (ProcessSplit)
 
@@ -97,7 +97,7 @@ Used for bed arrangement in C&P frontend
 
 ### parse_data (ProcessParseData)
 
-Get data from P2Sliced stl for MMF Threedfile_derivative table
+Get mesh information from P2Slice stl
 
 ### generate_support (ProcessGenerateSupport)
 
@@ -105,7 +105,7 @@ Generate suppport for P2Slice stl
 
 ### parse_data (ProcessParseData)
 
-Get data from support for P2Sliced stl for MMF Threedfile_derivative table
+Get mesh information from support stl
 
 ## An example
 
@@ -114,17 +114,17 @@ If you run the command at Usage, it should output the following files at ```./p2
 ```process_report.json``` A report to see whether each process is successful
 
 ```no-union-test.json no-union-test_metadata.json```
-data for threedfile table
+information of original file
 
 ```P2Slice_no-union-test_0_split.json P2Slice_no-union-test_0_split_metadata.json```
-data for p2slice for threedfile_derivative table
+information of P2Slice file
 
 ``` support_P2Slice_no-union-test_0_split.json support_P2Slice_no-union-test_0_split_metadata.json ```
-data for support for threedfile_derivative table
+information of support file
 
-```P2Slice_no-union-test_0_split.stl``` The P2Sliced STL
+```P2Slice_no-union-test_0_split.stl``` The P2Slice STL
 
-```support_P2Slice_no-union-test_0_split.stl``` support STL for P2Sliced file
+```support_P2Slice_no-union-test_0_split.stl``` support STL for P2Slice file
 
 ```tmp_P2Slice_no-union-test.stl``` A copy of the original file not useful
 
