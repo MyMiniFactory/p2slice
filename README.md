@@ -106,3 +106,25 @@ Generate suppport for P2Slice stl
 ### parse_data (ProcessParseData)
 
 Get data from support for P2Sliced stl for MMF Threedfile_derivative table
+
+## An example
+
+If you run the command at Usage, it should output the following files at ```./p2slice_test/tmp```
+
+```process_report.json``` A report to see whether each process is successful
+
+```no-union-test.json no-union-test_metadata.json```
+data for threedfile table
+
+```P2Slice_no-union-test_0_split.json P2Slice_no-union-test_0_split_metadata.json```
+data for p2slice for threedfile_derivative table
+
+``` support_P2Slice_no-union-test_0_split.json support_P2Slice_no-union-test_0_split_metadata.json ```
+data for support for threedfile_derivative table
+
+```P2Slice_no-union-test_0_split.stl``` The P2Sliced STL
+
+```support_P2Slice_no-union-test_0_split.stl``` support STL for P2Sliced file
+
+```tmp_P2Slice_no-union-test.stl``` A copy of the original file not useful
+
