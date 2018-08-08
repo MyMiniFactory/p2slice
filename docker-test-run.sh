@@ -3,7 +3,8 @@ filesToTest="
     union-test.stl
     split-test.stl
     tightly-arranged.stl
-    no-tightly-arranged.stl
+    tightly-arranged-1.stl
+    no-tightly-arranged-1.stl
 "
 
 for file in $filesToTest; do
