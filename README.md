@@ -4,19 +4,19 @@ P2Slice prepares a STL file for FDM 3D Printing.
 
 ## Usage
 
-IMPORTANT: Assuming the current working path is P2Slice project
+IMPORTANT: Assuming the current working path is root of P2Slice project from now on
 
 ```
 docker run --rm \
-    -v $PWD/p2slice_test:/app/p2slice_test \
-    p2slice \
-        --original_mesh_path ./p2slice_test/no-union-test.stl \
-        --pythonpath . \
-        --error_path ./p2slice_test/error.log \
-        --tmp_path ./p2slice_test/tmp \
-        --meshlab_command meshlab \
-        --enable_union \
-        --verbose
+    -v $PWD/p2slice_test:/app/p2slice_test \ # share the stls
+    p2slice \ # docker image name is p2slice
+        --original_mesh_path ./p2slice_test/no-union-test.stl \ # the input stl
+        --pythonpath . \ # indicates where is the py files important
+        --error_path ./p2slice_test/error.log \ # log file
+        --tmp_path ./p2slice_test/tmp \ # all the output files sit in this directory
+        --meshlab_command meshlab \ # not used
+        --enable_union \ # do Blender Union
+        --verbose # spitting bars at ./p2slice_test/error.log
 ```
 
 ## Installing
@@ -46,9 +46,11 @@ explanation.
 
 ### clean_file (ProcessCleanFile)
 
-Open the stl and save to binary STL format
+Open the ASCII/binary stl and save to binary STL format
 
 STLReader.py is adapted from STLReader.py in CuraEngine
+
+[Example](./p2slice_test/split-test.stl)
 
 ### parse_data (ProcessParseData)
 
