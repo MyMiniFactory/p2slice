@@ -109,6 +109,10 @@ Generate suppport for P2Slice stl
 
 Get mesh information from support stl
 
+### well_arranged (ProcessWellArranged)
+
+Check whether a file is well_arranged (i.e. multiple models, with intersecting bounding boxes, that are not tightly arranged, but all disposed on a same plan) 
+
 ## An example
 
 If you run the command at Usage, it should output the following files at ```./p2slice_test/tmp```
