@@ -14,6 +14,7 @@ from utils import ProcessBase
 from split import ProcessSplit
 from union import ProcessUnion
 from tightly_arranged import ProcessTightlyArranged
+from well_arranged import ProcessWellArranged
 
 logging.getLogger("trimesh").setLevel(logging.ERROR)
 
@@ -42,6 +43,7 @@ class ProcessP2Slice(ProcessBase):
 
         :return None
         """
+        #append_data_to_json({"UEUEUEUEUEUE": splited_parts_counter}, metadata_json_path)
 
         def processSingleMesh(
                 in_mesh_path, result_mesh_path, mesh_name, verbose, P2Slice_path, tmp_path, # simplify
@@ -55,11 +57,16 @@ class ProcessP2Slice(ProcessBase):
             union(result_mesh_path, P2Slice_metadata_json)
             shell_count(result_mesh_path, P2Slice_json, P2Slice_metadata_json)
             simplify(result_mesh_path, mesh_name, verbose, P2Slice_path, tmp_path, meshlab_command)
-            tweak(result_mesh_path, support_free, P2Slice_json, P2Slice_metadata_json)
+            is_well_arranged = well_arranged(result_mesh_path, P2Slice_json, P2Slice_metadata_json)
+
+            if not is_well_arranged:
+                tweak(result_mesh_path, support_free, P2Slice_json, P2Slice_metadata_json)
+
             find_best_rect(result_mesh_path, P2Slice_metadata_json)
             parse_data(result_mesh_path, P2Slice_json, P2Slice_metadata_json)
             generate_support(result_mesh_path, result_support_mesh_path)
             parse_data(result_support_mesh_path, support_json_path, support_metadata_json)
+
 
         clean_file(original_mesh_path, result_mesh_path)
 
@@ -70,9 +77,9 @@ class ProcessP2Slice(ProcessBase):
 
         splited_parts_counter = 0
         for export_mesh_path in export_meshes_pathes:
+
             for ta_export_mesh_path in tightly_arranged(export_mesh_path, tmp_path, P2Slice_path):
                 splited_parts_counter += 1
-
 
                 [ result_mesh_path,
                 result_support_mesh_path,
@@ -104,6 +111,7 @@ return_paths = ProcessReturnPaths().run
 return_original_paths = ProcessReturnOriginalPaths().run
 upload_process = ProcessP2Slice().run
 tightly_arranged = ProcessTightlyArranged().run
+well_arranged = ProcessWellArranged().run
 
 if __name__ == "__main__":
     import slicing_config
@@ -120,6 +128,7 @@ if __name__ == "__main__":
     parser.add_argument('--enable_union', action="store_true", help="do slow union", default=False) # not used
     parser.add_argument('--meshlab_command', action="store", help="full command for calling meshlabserver", default=False, required=True)
     args = parser.parse_args()
+
 
     if args.python_path :
         P2Slice_path = args.python_path
