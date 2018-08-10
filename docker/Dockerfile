@@ -56,4 +56,9 @@ RUN gcc -I/usr/local/bullet/src -I/usr/local/bullet/examples/ -I/usr/local/java/
 
 ENV PATH="/app:${PATH}"
 
+RUN groupadd -g 1000 cdn
+RUN adduser -u 1000 cdn -g cdn
+
+USER cdn
+
 ENTRYPOINT ["python3", "upload_process_P2Slice.py"]
