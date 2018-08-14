@@ -37,25 +37,22 @@ class ProcessWellArranged(ProcessBase):
             align = my_mesh.face_normals
             for index in range(len(align)):       # Cumulate areavectors
                 orient[tuple(align[index])] += calculateArea(my_mesh, index)
-            orientations = orient.most_common(100)
+            orientations = orient.most_common(10)
+            self.logger.debug("NUMBER OF MESHES : {}".format(number_of_meshes))
             
-            for m in meshes:
-                for ori in orientations:
-                    ori = np.array(ori[0])
-                    print(ori)
-                    ori = ori / np.linalg.norm(ori)
-                    well_arranged, transformed_mesh = self.is_well_arranged(my_mesh, meshes, ori)
-                    if well_arranged:
-                        self.logger.debug("Is well arranged")
-                        transformed_mesh.export(mesh_path)
-                        matrix = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]] 
-                        metadata = {
-                            'rotation_matrix': matrix,
-                            'alignment': [0.0, 0.0, 1.0]
-                        }
-                        append_data_to_json(metadata, P2Slice_metadata_json)
-                        break
+            for ori in orientations:
+                ori = np.array(ori[0])
+                ori = ori / np.linalg.norm(ori)
+                well_arranged, transformed_mesh = self.is_well_arranged(my_mesh, meshes, ori)
                 if well_arranged:
+                    self.logger.debug("Is well arranged")
+                    transformed_mesh.export(mesh_path)
+                    matrix = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]] 
+                    metadata = {
+                        'rotation_matrix': matrix,
+                        'alignment': [0.0, 0.0, 1.0]
+                    }
+                    append_data_to_json(metadata, P2Slice_metadata_json)
                     break
         
         self.logger.debug("Well arranged : {}".format(well_arranged))
