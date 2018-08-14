@@ -58,7 +58,7 @@ class ProcessWellArranged(ProcessBase):
                 if well_arranged:
                     break
         
-        self.logger.debug("Well aranged : {}".format(well_arranged))
+        self.logger.debug("Well arranged : {}".format(well_arranged))
         data = {'printInPlace': well_arranged}
         append_data_to_json(data, P2Slice_json)
         return well_arranged
@@ -88,7 +88,8 @@ class ProcessWellArranged(ProcessBase):
             l4 = np.array([0,0,0,1])
             A = np.transpose(np.array([l1, l2, l3, l4]).reshape(4, 4))
             A = np.linalg.inv(A)
-        transformed_mesh = copy.deepcopy(mesh).apply_transform(A)
+        transformed_mesh = copy.deepcopy(mesh)
+        transformed_mesh.apply_transform(A)
         return transformed_mesh
 
 
