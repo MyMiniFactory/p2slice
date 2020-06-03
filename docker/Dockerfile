@@ -5,10 +5,10 @@ RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.
 RUN rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
 RUN yum -y install curl
 
-# Install Python 3.4 and extensions
-RUN yum -y install python34.x86_64 \
-                   python34-numpy.x86_64 \
-                   python34-pip.noarch
+# Install Python 3.6 and extensions
+RUN yum -y install python36.x86_64 \
+                   python36-numpy.x86_64 \
+                   python36-pip.noarch
 
 # download blender
 RUN yum -y install bzip2 \
