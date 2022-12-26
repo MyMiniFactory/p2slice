@@ -2,7 +2,7 @@ numpy==1.18.4
 image==1.5.16
 networkx==2.1
 nine==1.0.0
-wheel==0.34.2
+wheel==0.38.1
 numpy-stl==2.11.2
 olefile==0.44
 Pillow==6.2.2
